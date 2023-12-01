@@ -32,6 +32,17 @@ namespace PropertyRepairsIncConsumerAPI.Services
             return houses;
         }
 
+        public async Task<HouseDto?> GetHouseByAddress(string address)
+        {
+            
+            List<House> list = await _context.Houses.Where(h => h.Location == address).ToListAsync();
+
+            if (list.Count > 0)
+                return list[0].ConvertToHouseDto();
+            else
+                return null;
+        }
+
         public async Task<IEnumerable<HouseDto>> GetHousesBy(HouseSearch houseSearch)
         {
             string location = houseSearch.Location;

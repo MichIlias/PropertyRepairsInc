@@ -6,6 +6,7 @@ using PropertyRepairsIncConsumerAPI.Models;
 using Newtonsoft.Json;
 using System.Text;
 using Microsoft.EntityFrameworkCore;
+using System.Net;
 
 namespace PropertyRepairsIncConsumerAPI.Services
 {
@@ -56,7 +57,13 @@ namespace PropertyRepairsIncConsumerAPI.Services
         {
             _logger.LogInformation("Received RepairDTO from RabbitMQ");
             Repair repair = repairDto.ConvertToRepair();
-            repair.HouseId = 1;
+
+            List<House> list = await _context.Houses.Where(h => h.Location == repairDto.Address).ToListAsync();
+
+            if (list.Count > 0)
+                repair.HouseId = list[0].Id;
+            else
+                throw new Exception("House not found");
 
             _context.Add(repair);
             _context.SaveChangesAsync();
